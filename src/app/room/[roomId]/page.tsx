@@ -3,10 +3,17 @@
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+function formatTimeRemaining(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 const Page = () => {
   const params = useParams();
   const roomId = params.roomId as string;
   const [copyStatus, setCopyStatus] = useState("COPY");
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   const copyLink = () => {
     const url = window.location.href;
@@ -35,7 +42,32 @@ const Page = () => {
           </div>
 
           <div className="h-8 w-px bg-zinc-800" />
+
+          <div className="flex flex-col">
+            <span className="text-xs text-zinc-500 uppercase">
+              Self-Destruct
+            </span>
+            <span
+              className={`text-sm font-bold flex items-center gap-2 ${
+                timeRemaining !== null && timeRemaining < 60
+                  ? "text-red-500"
+                  : "text-amber-500"
+              }`}
+            >
+              {timeRemaining !== null
+                ? formatTimeRemaining(timeRemaining)
+                : "--:--"}
+            </span>
+          </div>
         </div>
+
+        <button
+          // onClick={() => destroyRoom()}
+          className="text-xs bg-zinc-800 hover:bg-red-600 px-3 py-1.5 rounded text-zinc-400 hover:text-white font-bold transition-all group flex items-center gap-2 disabled:opacity-50"
+        >
+          <span className="group-hover:animate-pulse">💣</span>
+          DESTROY NOW
+        </button>
       </header>
     </main>
   );
