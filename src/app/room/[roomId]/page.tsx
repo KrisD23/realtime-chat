@@ -29,14 +29,13 @@ const Page = () => {
   const { data: ttlData } = useQuery({
     queryKey: ["ttl", roomId],
     queryFn: async () => {
-      const res = await client.room.ttl.get({ query: { roomId } });
-      return res.data;
+      return await client.room.ttl(roomId);
     },
   });
 
   // Initialize time remaining from ttlData, but only once when ttlData first becomes available
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
-    () => ttlData?.ttl ?? null
+    () => ttlData?.ttl ?? null,
   );
 
   // Update timeRemaining only when ttlData changes and timeRemaining is still null
@@ -68,18 +67,13 @@ const Page = () => {
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", roomId],
     queryFn: async () => {
-      const res = await client.messages.get({ query: { roomId } });
-      return res.data;
+      return await client.messages.get(roomId);
     },
   });
 
   const { mutate: sendMessage, isPending } = useMutation({
     mutationFn: async ({ text }: { text: string }) => {
-      await client.messages.post(
-        { sender: username, text },
-        { query: { roomId } }
-      );
-
+      await client.messages.post(roomId, username, text);
       setInput("");
     },
   });
@@ -100,7 +94,7 @@ const Page = () => {
 
   const { mutate: destroyRoom } = useMutation({
     mutationFn: async () => {
-      await client.room.delete(null, { query: { roomId } });
+      await client.room.delete(roomId);
     },
   });
 
